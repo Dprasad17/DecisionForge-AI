@@ -1,0 +1,158 @@
+[
+  {
+    "id": "DOC-ACC-001",
+    "title": "Password Reset and Two-Factor Authentication Recovery",
+    "category": "account_access",
+    "content": "Users unable to access their account due to forgotten credentials can trigger an automated password reset from the sign-in screen using their registered email address. Password reset tokens expire after 30 minutes. If Two-Factor Authentication (2FA) is enabled and the user lost their authenticator device, recovery backup codes must be entered. If backup codes are unavailable, the customer must submit government ID verification for manual identity recovery. Customer support agents are prohibited from manually bypassing 2FA without verified identity documentation.",
+    "source_metadata": {
+      "version": "1.2",
+      "effective_date": "2025-01-15",
+      "department": "Security & Identity",
+      "allowed_actions": ["provide_information", "recommend_troubleshooting"],
+      "restricted_actions": ["manual_2fa_bypass"]
+    }
+  },
+  {
+    "id": "DOC-ACC-002",
+    "title": "Account Lockout and Suspicious Activity Policy",
+    "category": "account_access",
+    "content": "Accounts are automatically locked after five consecutive failed login attempts to protect against brute-force attacks. Lockouts remain in effect for 15 minutes before resetting automatically. If a customer suspects unauthorized access or account takeover, they should immediately freeze active sessions from security settings. Support representatives cannot immediately unlock high-risk flagged accounts without secondary authorization from the Trust & Safety team.",
+    "source_metadata": {
+      "version": "1.1",
+      "effective_date": "2025-02-01",
+      "department": "Trust & Safety",
+      "allowed_actions": ["provide_information", "recommend_human_review"],
+      "restricted_actions": ["direct_account_unlock"]
+    }
+  },
+  {
+    "id": "DOC-BIL-001",
+    "title": "Failed Payments and Bank Authorization Holds",
+    "category": "payment_issue",
+    "content": "When a payment transaction fails at checkout but a charge appears on the customer's bank statement, this is typically a temporary pre-authorization hold placed by the card issuer rather than a settled transaction. Unsettled authorization holds are automatically released by card networks within 3 to 5 business days. Customers should verify whether a formal invoice and transaction receipt were generated in their Billing History. If the amount remains settled after 5 business days with no active order, the transaction must be escalated to financial operations with bank statement proof.",
+    "source_metadata": {
+      "version": "2.0",
+      "effective_date": "2025-01-10",
+      "department": "Billing Operations",
+      "allowed_actions": ["provide_information", "request_clarification"],
+      "restricted_actions": ["immediate_ledger_adjustment"]
+    }
+  },
+  {
+    "id": "DOC-BIL-002",
+    "title": "Updating Payment Methods and Billing Details",
+    "category": "payment_issue",
+    "content": "Customers can add or update credit cards, debit cards, and corporate invoicing details under Account Settings > Payment Methods. When updating a default payment method, a temporary $1 verification charge may be authorized and immediately voided. If a scheduled recurring invoice fails due to an expired card, the platform will retry the transaction after 48 hours. Support agents cannot view or store raw credit card numbers or CVVs.",
+    "source_metadata": {
+      "version": "1.0",
+      "effective_date": "2025-01-05",
+      "department": "Billing Operations",
+      "allowed_actions": ["provide_information", "recommend_troubleshooting"],
+      "restricted_actions": ["card_data_entry"]
+    }
+  },
+  {
+    "id": "DOC-REF-001",
+    "title": "Standard 14-Day Refund Eligibility Guidelines",
+    "category": "refund_request",
+    "content": "Full refunds are available within 14 calendar days of initial subscription purchase or service activation, provided service utilization does not exceed 10 hours or 50 API credits. Refund requests submitted after 14 days are subject to partial credit evaluation only. All refund issuances require automated validation of transaction records and supervisor sign-off. The support chat system is informational and cannot autonomously disburse refunds or alter bank ledgers.",
+    "source_metadata": {
+      "version": "3.1",
+      "effective_date": "2025-03-01",
+      "department": "Finance & Compliance",
+      "allowed_actions": ["provide_information", "recommend_human_review"],
+      "restricted_actions": ["autonomous_refund_execution"]
+    }
+  },
+  {
+    "id": "DOC-REF-002",
+    "title": "Non-Refundable Items, Chargebacks, and Dispute Escalation",
+    "category": "refund_request",
+    "content": "Custom enterprise onboarding packages, consumed computational credits, and third-party marketplace add-ons are strictly non-refundable. If a customer initiates a formal bank chargeback dispute, the customer account enters a frozen dispute status until merchant arbitration concludes. Support representatives must immediately forward all chargeback or legal dispute threats to the Risk & Legal team without making verbal or written refund commitments.",
+    "source_metadata": {
+      "version": "2.2",
+      "effective_date": "2025-02-15",
+      "department": "Legal & Risk",
+      "allowed_actions": ["provide_information", "recommend_human_review"],
+      "restricted_actions": ["dispute_waiver", "unauthorized_settlement"]
+    }
+  },
+  {
+    "id": "DOC-SUB-001",
+    "title": "Subscription Cancellation and Grace Period Policy",
+    "category": "subscription_change",
+    "content": "Subscribers may cancel auto-renewal at any time via Account Settings > Subscription Management > Cancel Renewal. Cancellation takes effect at the conclusion of the current prepaid billing cycle, and subscribers retain full platform access until that date. No penalty fees apply. A 7-day grace period is provided if a subscription lapses unintentionally due to billing failure, during which project data remains intact before being archived.",
+    "source_metadata": {
+      "version": "1.4",
+      "effective_date": "2025-01-20",
+      "department": "Customer Success",
+      "allowed_actions": ["provide_information", "recommend_troubleshooting"],
+      "restricted_actions": ["immediate_data_purge"]
+    }
+  },
+  {
+    "id": "DOC-SUB-002",
+    "title": "Plan Upgrades, Downgrades, and Prorated Billing",
+    "category": "subscription_change",
+    "content": "Upgrading to a higher tier plan takes effect immediately, with a prorated charge applied for the remainder of the current billing cycle. Downgrading to a lower tier takes effect at the start of the next billing cycle to prevent mid-cycle feature disruption. If a downgrade requires reducing storage or user seats below current usage, the user must remove excess resources before the change can be confirmed.",
+    "source_metadata": {
+      "version": "1.3",
+      "effective_date": "2025-01-25",
+      "department": "Billing Operations",
+      "allowed_actions": ["provide_information", "recommend_troubleshooting"],
+      "restricted_actions": ["forced_tier_override"]
+    }
+  },
+  {
+    "id": "DOC-TEC-001",
+    "title": "Application Crashes, Cache Clearing, and Client Diagnostics",
+    "category": "technical_problem",
+    "content": "If the web or desktop application crashes, freezes, or fails to render specific panels, users should perform first-line troubleshooting: (1) Hard refresh the browser (Ctrl+F5 or Cmd+Shift+R); (2) Clear browser cache and cookies for the service domain; (3) Disable active browser ad blockers or script-blocking extensions; (4) Verify hardware acceleration settings. If the issue persists across incognito/private windows, capture console error logs and system environment details.",
+    "source_metadata": {
+      "version": "2.1",
+      "effective_date": "2025-02-10",
+      "department": "Technical Support",
+      "allowed_actions": ["provide_information", "recommend_troubleshooting"],
+      "restricted_actions": ["remote_shell_execution"]
+    }
+  },
+  {
+    "id": "DOC-TEC-002",
+    "title": "API Rate Limits, HTTP Errors, and Service Health Outages",
+    "category": "technical_problem",
+    "content": "Standard API keys are limited to 60 requests per minute and 10,000 requests per day. Exceeding these thresholds results in HTTP 429 (Too Many Requests) responses with a 'Retry-After' header. For HTTP 500 or 503 errors, customers should check the public Status Page at status.decisionforge.example.com for ongoing platform incidents. If the status page reports operational status but 5xx errors continue, the request should be escalated with timestamped correlation IDs.",
+    "source_metadata": {
+      "version": "2.0",
+      "effective_date": "2025-02-12",
+      "department": "Infrastructure & Support",
+      "allowed_actions": ["provide_information", "recommend_troubleshooting", "recommend_human_review"],
+      "restricted_actions": ["cluster_restart"]
+    }
+  },
+  {
+    "id": "DOC-ORD-001",
+    "title": "Service Provisioning Timelines and Order Tracking",
+    "category": "order_or_service_status",
+    "content": "Standard digital service provisions and license activations are completed within 15 minutes of payment clearance. Enterprise dedicated tenant setups take between 24 and 48 business hours. Customers can track provisioning milestones under the Orders & Licenses tab on their customer dashboard. If an order displays 'Provisioning Pending' for more than 2 hours on a standard plan, customer support can trigger an automated provisioning status refresh.",
+    "source_metadata": {
+      "version": "1.1",
+      "effective_date": "2025-01-30",
+      "department": "Operations",
+      "allowed_actions": ["provide_information", "recommend_troubleshooting"],
+      "restricted_actions": ["manual_license_key_minting"]
+    }
+  },
+  {
+    "id": "DOC-POL-001",
+    "title": "Data Privacy, Export Requests, and Regulatory Compliance",
+    "category": "policy_question",
+    "content": "Under company data protection guidelines and privacy regulations (GDPR/CCPA), customers have the right to request a complete export of their stored personal data or submit a formal Right to be Forgotten deletion request. Data export packages are compiled within 7 business days and made available as password-protected zip archives. Account deletion requests require identity confirmation and a 30-day pending retention window. Automated agents cannot instantly delete user data records.",
+    "source_metadata": {
+      "version": "3.0",
+      "effective_date": "2025-03-05",
+      "department": "Legal & Compliance",
+      "allowed_actions": ["provide_information", "recommend_human_review"],
+      "restricted_actions": ["instant_data_purge"]
+    }
+  }
+]
