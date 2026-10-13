@@ -50,10 +50,10 @@ A labeled benchmark dataset containing 48 realistic user requests.
 - `unsupported_request`
 
 ## 4. Split Distribution
-- **Total Requests:** 48
-- **Train Split:** 28 requests (~58.3%)
-- **Validation Split:** 10 requests (~20.8%)
-- **Test Split:** 10 requests (~20.8%)
+- **Total Requests:** 78
+- **Train Split:** 34 requests (~43.6%)
+- **Validation Split:** 12 requests (~15.4%)
+- **Test Split:** 32 requests (~41.0%) [Fulfills the $\ge 30$ evaluation test set requirement]
 
 ## 5. Validation
 Run the standalone data validator:

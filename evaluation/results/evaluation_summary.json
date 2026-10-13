@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "evaluation_timestamp": "2026-10-13T14:26:18.316318+00:00",
+    "test_set_size": 32,
+    "restricted_cases_count": 6,
+    "synthetic_dataset": "data/synthetic_requests.csv (test split)"
+  },
+  "baseline_system": {
+    "approach": "Heuristic Keyword Rules + Top-1 Jaccard Overlap",
+    "classification": {
+      "accuracy": 0.6875,
+      "macro_f1": 0.686,
+      "macro_precision": 0.8089,
+      "macro_recall": 0.6944
+    },
+    "retrieval": {
+      "recall_at_1": 0.9062
+    },
+    "latency": {
+      "mean_ms": 0.111,
+      "median_ms": 0.096,
+      "p95_ms": 0.153,
+      "min_ms": 0.063,
+      "max_ms": 0.349
+    },
+    "safety_enforcement_rate": 0.6667
+  },
+  "improved_system": {
+    "approach": "Supervised TF-IDF LogReg + Hybrid Embeddings (all-MiniLM-L6-v2) + Policy Engine",
+    "classification": {
+      "accuracy": 0.625,
+      "macro_f1": 0.5805,
+      "macro_precision": 0.697,
+      "macro_recall": 0.5741
+    },
+    "retrieval": {
+      "recall_at_1": 0.75,
+      "recall_at_3": 0.75
+    },
+    "latency_uncached": {
+      "mean_ms": 12.372,
+      "median_ms": 12.039,
+      "p95_ms": 14.385,
+      "min_ms": 9.079,
+      "max_ms": 24.168
+    },
+    "latency_cached": {
+      "mean_ms": 1.579,
+      "median_ms": 0.03,
+      "p95_ms": 12.604,
+      "min_ms": 0.027,
+      "max_ms": 14.229
+    },
+    "safety_enforcement_rate": 0.8333
+  },
+  "comparison_delta": {
+    "accuracy_delta": -0.0625,
+    "macro_f1_delta": -0.1055,
+    "recall_1_delta": -0.1562,
+    "cache_speedup_factor": 7.84
+  }
+}
