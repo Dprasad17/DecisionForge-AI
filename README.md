@@ -10,11 +10,11 @@
 Modern businesses receive high volumes of natural-language inquiries across customer support, billing, and technical operations. Simple chatbots often answer without verifying underlying policy constraints, halluncinating facts or attempting prohibited actions. Rules-only systems are safe but too brittle to understand natural paraphrasing, while expensive LLM-only pipelines are slow, costly, and lack auditability.
 
 **DecisionForge AI** solves this with a **multi-stage decision workflow with controlled autonomy**:
-1. **Lightweight Supervised Intent Classification (Approach A):** Fast, local scikit-learn TF-IDF + Logistic Regression calibrated with `predict_proba`.
+1. **Lightweight Supervised Intent Classification (Approach A):** Fast, local scikit-learn TF-IDF + Logistic Regression producing class probability distributions via `predict_proba`.
 2. **Semantic / Hybrid Knowledge Retrieval (Approach B):** Dense vector embeddings (`all-MiniLM-L6-v2`) combined with keyword token coverage over a controlled local knowledge base (`data/knowledge_base.json`).
 3. **Deterministic Policy & Safety Engine:** Hard operational guardrails that cannot be bypassed by model confidence or adversarial prompt injections.
 4. **Controlled Autonomy:** Categorizes requests into `AUTO_RESPONSE`, `RECOMMENDATION_ONLY`, `HUMAN_REVIEW`, or `BLOCKED_BY_POLICY`. Prohibits real financial ledger mutations or live credential bypasses.
-5. **Measurable In-Memory Optimization:** Bypasses dense vector computation on repeated inquiries via a normalized in-memory cache, achieving an immediate **7.84x latency speedup**.
+5. **Measurable In-Memory Optimization:** Bypasses dense vector computation on repeated inquiries via a normalized in-memory cache, achieving an immediate **8.36x latency speedup**.
 6. **Full-Stack Delivery:** Clean, interactive Streamlit frontend (`app/streamlit_app.py`) integrated with a robust FastAPI backend (`backend/main.py`).
 
 ---
@@ -25,12 +25,12 @@ Modern businesses receive high volumes of natural-language inquiries across cust
 User Business Request (Natural Language)
        │
        ▼
-[Stage 0] Input Sanitization & In-Memory Cache (7.84x Speedup on Hit)
+[Stage 0] Input Sanitization & In-Memory Cache (8.36x Speedup on Hit)
        │ (Cache Miss)
        ▼
 [Stage 1] Supervised Classifier (TF-IDF + Logistic Regression)
        ├── Intent Category (e.g., payment_issue, refund_request, account_access)
-       └── Calibrated Class Probability Distribution (Confidence Score)
+       └── Class Probability Distribution & Confidence Score
        │
        ▼
 [Stage 2] Hybrid Knowledge Retrieval (Sentence-Transformers + Token Coverage)
@@ -64,7 +64,7 @@ User Business Request (Natural Language)
 | **Core Language** | Python 3.12 | Standardized, cross-platform, high performance |
 | **Backend API** | FastAPI + Uvicorn | Asynchronous, typed Pydantic validation, OpenAPI documentation |
 | **Frontend UI** | Streamlit | Rapid, responsive, interactive decision review dashboard |
-| **Supervised Classifier (Approach A)** | scikit-learn (TF-IDF + Logistic Regression) | Low CPU footprint, instant training, calibrated probability distributions |
+| **Supervised Classifier (Approach A)** | scikit-learn (TF-IDF + Logistic Regression) | Low CPU footprint, instant training, multi-class probability distributions |
 | **Retrieval Engine (Approach B)** | `sentence-transformers` (`all-MiniLM-L6-v2`) + NumPy | Dense 384-dimensional semantic similarity, runs fully locally offline |
 | **Testing Suite** | Pytest + Starlette TestClient | 31 automated tests spanning unit, integration, and security checks |
 | **Data Format** | JSON & Version-Controlled CSV | Transparent, inspectable, zero external database overhead |
@@ -145,15 +145,18 @@ Open your browser at `http://localhost:8501` to use the interactive Decision Stu
 
 Evaluated on the held-out test split of **32 synthetic requests** (Requirement: $\ge 30$).
 
-| Metric | Phase 2 Baseline (Keyword/Rules) | Phase 3-5 Improved Engine | Delta / Improvement |
+| Metric | Phase 2 Baseline (Keyword/Rules) | Phase 3-5 Improved Engine | Delta / Result |
 |---|---|---|---|
-| **Intent Accuracy** | 0.6875 | 0.6250 | Supervised generalization trade-off |
-| **Macro-F1 Score** | 0.6860 | 0.5805 | Balanced multi-class coverage |
-| **Retrieval Recall@1** | 0.9062 | 0.7500 | Canonical Jaccard vs dense vector scoring |
-| **Retrieval Recall@3** | N/A | 0.7500 | Top-3 evidence candidate coverage |
-| **Safety Enforcement Rate** | 66.7% | **83.3%** | **+16.6% safety improvement** |
-| **Mean Latency (Uncached)** | 0.077 ms | 15.558 ms | Dense vector embedding CPU compute |
-| **Mean Latency (Cached Route)**| N/A | **1.954 ms** | **7.96x latency speedup** |
+| **Intent Accuracy** | 0.6875 | 0.6250 | **-0.0625** (decrease; keyword sparsity trade-off) |
+| **Macro-F1 Score** | 0.6860 | 0.5805 | **-0.1055** (decrease; multi-class coverage trade-off) |
+| **Retrieval Recall@1** | 0.9062 | 0.7500 | **-0.1562** (decrease; exact token match vs dense embedding) |
+| **Retrieval Recall@3** | N/A | 0.7500 | Top-3 candidate coverage |
+| **Safety Enforcement Rate** | 66.7% | **83.3%** | **+16.7%** (improvement; deterministic policy guardrails) |
+| **Mean Latency (Uncached)** | 0.093 ms | 16.519 ms | Dense vector embedding compute trade-off |
+| **Mean Latency (Cached Route)**| N/A | **1.977 ms** | **8.36x latency speedup** (operational caching optimization) |
+
+> **Trade-Off & Evaluation Note:**<br>
+> On this small synthetic test set (32 cases), hand-crafted keyword rules achieved higher lexical accuracy/recall because queries contain specific keyword targets. The supervised TF-IDF model was trained on 34 examples across 9 classes (~3–4 samples per class), causing training sparsity. However, the improved engine provides continuous probability distributions across all classes for principled escalation, superior adversarial safety enforcement (83.3% vs 66.7%), semantic tolerance for unseen synonyms, and a 8.36x operational latency speedup on cached requests.
 
 *Raw results saved to [evaluation/results/evaluation_summary.json](file:///c:/DecisionForageAI/evaluation/results/evaluation_summary.json) and [docs/evaluation_report.md](file:///c:/DecisionForageAI/docs/evaluation_report.md).*
 

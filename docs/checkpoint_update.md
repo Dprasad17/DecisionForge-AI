@@ -16,7 +16,7 @@ All mandatory functional requirements defined in the **VEGAH Round 2 Assessment 
 
 ### A. Core Architecture & Multi-Stage Workflow
 - **Input Validation & Sanitization:** Filters and normalizes user requests across all entrypoints.
-- **Approach A (Lightweight Supervised Classifier):** Scikit-learn Pipeline combining TF-IDF N-grams (1,2) with Logistic Regression, calibrated with `predict_proba()` to produce full class probability distributions across 9 intent categories.
+- **Approach A (Lightweight Supervised Classifier):** Scikit-learn Pipeline combining TF-IDF N-grams (1,2) with Logistic Regression, producing class probability distributions via `predict_proba()` across 9 intent categories.
 - **Approach B (Hybrid & Semantic Knowledge Retrieval):** Dense vector embeddings via `sentence-transformers` (`all-MiniLM-L6-v2`) combined with sparse token coverage over `data/knowledge_base.json`, extracting top-k evidence documents with relevance scores and excerpts.
 - **Deterministic Policy & Guardrails Engine:** Hard operational constraints enforcing `BLOCKED_BY_POLICY`, `HUMAN_REVIEW`, `RECOMMENDATION_ONLY`, or `AUTO_RESPONSE`. Intercepts prompt injection attacks and prohibited financial actions regardless of model confidence.
 - **Grounded Response Generation:** Synthesizes user-facing answers strictly grounded in retrieved evidence, with local template fallback ensuring zero hallucinations.
@@ -36,7 +36,7 @@ All mandatory functional requirements defined in the **VEGAH Round 2 Assessment 
 - **Frontend:** Streamlit interactive Decision Studio (`app/streamlit_app.py`) featuring preset demonstration scenarios, live status badges, evidence inspection cards, full JSON audit trace viewer, and evaluation laboratory tab.
 
 ### E. Test Suite & Engineering Rigor
-- **31 automated tests** in `tests/` covering data validation, leakage prevention, baseline execution, classifier calibration, semantic retrieval, policy guardrails, caching optimization, and API integration. All 31 tests pass with zero failures.
+- **34 automated tests** in `tests/` covering data validation, leakage prevention, baseline execution, classifier probability distributions, semantic retrieval, policy guardrails, caching optimization, evaluation reporting, and API integration. All tests pass with zero failures.
 
 ---
 

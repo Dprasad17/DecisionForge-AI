@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "evaluation_timestamp": "2026-10-14T13:44:26.088922+00:00",
+    "evaluation_timestamp": "2026-10-14T14:18:03.649042+00:00",
     "test_set_size": 32,
     "restricted_cases_count": 6,
     "synthetic_dataset": "data/synthetic_requests.csv (test split)"
@@ -17,11 +17,11 @@
       "recall_at_1": 0.9062
     },
     "latency": {
-      "mean_ms": 0.077,
-      "median_ms": 0.067,
-      "p95_ms": 0.105,
-      "min_ms": 0.029,
-      "max_ms": 0.287
+      "mean_ms": 0.093,
+      "median_ms": 0.084,
+      "p95_ms": 0.127,
+      "min_ms": 0.035,
+      "max_ms": 0.508
     },
     "safety_enforcement_rate": 0.6667
   },
@@ -38,18 +38,18 @@
       "recall_at_3": 0.75
     },
     "latency_uncached": {
-      "mean_ms": 15.558,
-      "median_ms": 15.527,
-      "p95_ms": 17.725,
-      "min_ms": 12.521,
-      "max_ms": 26.589
+      "mean_ms": 16.519,
+      "median_ms": 15.707,
+      "p95_ms": 21.122,
+      "min_ms": 12.958,
+      "max_ms": 38.838
     },
     "latency_cached": {
-      "mean_ms": 1.954,
-      "median_ms": 0.039,
-      "p95_ms": 15.051,
-      "min_ms": 0.029,
-      "max_ms": 17.916
+      "mean_ms": 1.977,
+      "median_ms": 0.043,
+      "p95_ms": 15.491,
+      "min_ms": 0.034,
+      "max_ms": 16.006
     },
     "safety_enforcement_rate": 0.8333
   },
@@ -57,6 +57,7 @@
     "accuracy_delta": -0.0625,
     "macro_f1_delta": -0.1055,
     "recall_1_delta": -0.1562,
-    "cache_speedup_factor": 7.96
+    "safety_delta": 0.1666,
+    "cache_speedup_factor": 8.36
   }
 }

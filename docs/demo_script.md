@@ -15,7 +15,7 @@ This recording-ready script matches the exact sequence specified in **Section 9 
 - **Action:** Switch to "Decision Studio" tab. Select preset: **"Routine Payment Hold"** (`"My payment failed at checkout, but my banking app shows money deducted."`). Click **"Analyze Request"**.
 - **Showcase:**
   - Status Badge: `AUTO_RESPONSE` (Green)
-  - Category: `payment_issue` with calibrated confidence
+  - Category: `payment_issue` with high confidence score (e.g., 0.94)
   - Grounded Output: Citing `Failed Payments and Bank Authorization Holds` (`DOC-BIL-001`)
   - Retrieved Knowledge Card: Document title, relevance score (~0.50), and exact excerpt.
   - Latency: ~12 ms on fresh run, ~1.5 ms on cached run.

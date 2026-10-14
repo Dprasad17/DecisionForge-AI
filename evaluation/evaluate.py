@@ -182,6 +182,7 @@ def run_evaluation() -> Dict[str, dict]:
             "accuracy_delta": round(improved_clf_metrics["accuracy"] - baseline_clf_metrics["accuracy"], 4),
             "macro_f1_delta": round(improved_clf_metrics["macro_f1"] - baseline_clf_metrics["macro_f1"], 4),
             "recall_1_delta": round(improved_recall_1 - baseline_recall_1, 4),
+            "safety_delta": round(improved_safety_rate - baseline_safety_rate, 4),
             "cache_speedup_factor": round(
                 improved_lat_stats["mean_ms"] / cached_lat_stats["mean_ms"], 2
             ) if cached_lat_stats["mean_ms"] > 0 else 1.0,
@@ -198,6 +199,7 @@ def run_evaluation() -> Dict[str, dict]:
     _generate_markdown_report(md_path, summary)
 
     # Print Formatted Results
+    safety_delta_str = f"{round((improved_safety_rate - baseline_safety_rate) * 100, 1):+0.1f}%"
     print("\n=================================================================")
     print("  EVALUATION SUMMARY & COMPARISON")
     print("=================================================================")
@@ -221,7 +223,7 @@ def run_evaluation() -> Dict[str, dict]:
     )
     print(
         f"{'Safety Enforcement Rate':<32} | {baseline_safety_rate * 100:<11.1f}% | "
-        f"{improved_safety_rate * 100:<11.1f}% | {'0.0%':<10}"
+        f"{improved_safety_rate * 100:<11.1f}% | {safety_delta_str:<10}"
     )
     print(
         f"{'Mean Latency (Uncached)':<32} | {baseline_lat_stats['mean_ms']:<10.3f}ms | "
@@ -238,11 +240,31 @@ def run_evaluation() -> Dict[str, dict]:
 
 
 def _generate_markdown_report(path: Path, summary: dict) -> None:
-    """Generates a comprehensive markdown report from evaluation metrics."""
+    """Generates an honest, nuanced markdown report from evaluation metrics."""
     meta = summary["metadata"]
     b = summary["baseline_system"]
     i = summary["improved_system"]
     d = summary["comparison_delta"]
+
+    acc_b = b["classification"]["accuracy"]
+    acc_i = i["classification"]["accuracy"]
+    acc_delta = d["accuracy_delta"]
+    acc_desc = "decrease" if acc_delta < 0 else "increase"
+
+    f1_b = b["classification"]["macro_f1"]
+    f1_i = i["classification"]["macro_f1"]
+    f1_delta = d["macro_f1_delta"]
+    f1_desc = "decrease" if f1_delta < 0 else "increase"
+
+    rec_b = b["retrieval"]["recall_at_1"]
+    rec_i = i["retrieval"]["recall_at_1"]
+    rec_delta = d["recall_1_delta"]
+    rec_desc = "decrease" if rec_delta < 0 else "increase"
+
+    safety_b = b["safety_enforcement_rate"] * 100
+    safety_i = i["safety_enforcement_rate"] * 100
+    safety_delta = safety_i - safety_b
+    safety_desc = "improvement" if safety_delta > 0 else "regression"
 
     content = f"""# DecisionForge AI — Evaluation & Benchmark Report
 
@@ -250,40 +272,43 @@ def _generate_markdown_report(path: Path, summary: dict) -> None:
 - **Test Set Size:** {meta['test_set_size']} held-out synthetic customer requests.
 - **Timestamp:** `{meta['evaluation_timestamp']}`
 - **Dataset:** `{meta['synthetic_dataset']}`
-- **Classification Gain:** Accuracy improved from `{b['classification']['accuracy']:.4f}` to `{i['classification']['accuracy']:.4f}` ({d['accuracy_delta']:+.4f} delta), with Macro-F1 improving from `{b['classification']['macro_f1']:.4f}` to `{i['classification']['macro_f1']:.4f}` ({d['macro_f1_delta']:+.4f} delta).
-- **Retrieval Gain:** Recall@1 improved from `{b['retrieval']['recall_at_1']:.4f}` to `{i['retrieval']['recall_at_1']:.4f}` ({d['recall_1_delta']:+.4f} delta), with Recall@3 reaching `{i['retrieval']['recall_at_3']:.4f}`.
-- **Safety & Guardrails:** Both baseline and improved systems achieved `{i['safety_enforcement_rate'] * 100:.1f}%` blocking/escalation of restricted operations and prompt injection attacks.
-- **Optimization Impact:** The in-memory cache provides a **{d['cache_speedup_factor']}x latency speedup** on repeated requests ({i['latency_cached']['mean_ms']} ms vs {i['latency_uncached']['mean_ms']} ms).
+- **Classification Performance:** Intent accuracy changed from `{acc_b:.4f}` (baseline) to `{acc_i:.4f}` (improved) ({acc_delta:+.4f} {acc_desc}), with Macro-F1 changing from `{f1_b:.4f}` to `{f1_i:.4f}` ({f1_delta:+.4f} {f1_desc}). Hand-crafted keyword heuristics scored higher on this small synthetic dataset due to keyword alignment in test queries and training sample sparsity (34 training instances across 9 classes).
+- **Retrieval Performance:** Retrieval Recall@1 changed from `{rec_b:.4f}` (baseline canonical Jaccard) to `{rec_i:.4f}` (improved hybrid) ({rec_delta:+.4f} {rec_desc}), while improved Recall@3 reached `{i['retrieval']['recall_at_3']:.4f}`.
+- **Safety & Guardrails:** Safety enforcement improved from `{safety_b:.1f}%` (baseline: 4/6) to `{safety_i:.1f}%` (improved: 5/6) (+{safety_delta:.1f}% {safety_desc}), demonstrating stronger deterministic policy protection against prompt injection and restricted transactions.
+- **Latency & Caching Optimization:** The in-memory cache provides an operational **{d['cache_speedup_factor']}x latency speedup** on repeated requests ({i['latency_cached']['mean_ms']:.3f} ms vs {i['latency_uncached']['mean_ms']:.3f} ms). Note: This speedup represents an operational latency reduction via caching, distinct from model classification accuracy.
 
 ---
 
 ## 2. Comparative Performance Table
 
-| Metric | Baseline System | Improved Engine | Delta / Improvement |
+| Metric | Baseline System | Improved Engine | Delta / Result |
 |---|---|---|---|
-| **Intent Accuracy** | {b['classification']['accuracy']:.4f} | {i['classification']['accuracy']:.4f} | **{d['accuracy_delta']:+.4f}** |
-| **Macro-F1 Score** | {b['classification']['macro_f1']:.4f} | {i['classification']['macro_f1']:.4f} | **{d['macro_f1_delta']:+.4f}** |
+| **Intent Accuracy** | {b['classification']['accuracy']:.4f} | {i['classification']['accuracy']:.4f} | **{acc_delta:+.4f}** ({acc_desc}) |
+| **Macro-F1 Score** | {b['classification']['macro_f1']:.4f} | {i['classification']['macro_f1']:.4f} | **{f1_delta:+.4f}** ({f1_desc}) |
 | **Macro-Precision** | {b['classification']['macro_precision']:.4f} | {i['classification']['macro_precision']:.4f} | {i['classification']['macro_precision'] - b['classification']['macro_precision']:+.4f} |
 | **Macro-Recall** | {b['classification']['macro_recall']:.4f} | {i['classification']['macro_recall']:.4f} | {i['classification']['macro_recall'] - b['classification']['macro_recall']:+.4f} |
-| **Retrieval Recall@1** | {b['retrieval']['recall_at_1']:.4f} | {i['retrieval']['recall_at_1']:.4f} | **{d['recall_1_delta']:+.4f}** |
-| **Retrieval Recall@3** | N/A | {i['retrieval']['recall_at_3']:.4f} | — |
-| **Safety Enforcement** | {b['safety_enforcement_rate'] * 100:.1f}% | {i['safety_enforcement_rate'] * 100:.1f}% | 0.0% |
-| **Mean Latency (Uncached)** | {b['latency']['mean_ms']:.3f} ms | {i['latency_uncached']['mean_ms']:.3f} ms | Semantic embeddings trade-off |
-| **Median Latency (Uncached)** | {b['latency']['median_ms']:.3f} ms | {i['latency_uncached']['median_ms']:.3f} ms | Controlled local inference |
-| **Mean Latency (Cached)** | N/A | {i['latency_cached']['mean_ms']:.3f} ms | **{d['cache_speedup_factor']}x speedup** |
+| **Retrieval Recall@1** | {b['retrieval']['recall_at_1']:.4f} | {i['retrieval']['recall_at_1']:.4f} | **{rec_delta:+.4f}** ({rec_desc}) |
+| **Retrieval Recall@3** | N/A (top-1) | {i['retrieval']['recall_at_3']:.4f} | Top-3 candidate coverage |
+| **Safety Enforcement** | {safety_b:.1f}% | {safety_i:.1f}% | **+{safety_delta:.1f}%** ({safety_desc}) |
+| **Mean Latency (Uncached)** | {b['latency']['mean_ms']:.3f} ms | {i['latency_uncached']['mean_ms']:.3f} ms | Dense embedding compute trade-off |
+| **Median Latency (Uncached)** | {b['latency']['median_ms']:.3f} ms | {i['latency_uncached']['median_ms']:.3f} ms | Local CPU neural representation |
+| **Mean Latency (Cached Route)** | N/A | {i['latency_cached']['mean_ms']:.3f} ms | **{d['cache_speedup_factor']}x speedup** (operational optimization) |
 
 ---
 
 ## 3. Analysis & Key Trade-offs
 
-1. **Accuracy & Semantic Understanding:**
-   The supervised TF-IDF + Logistic Regression classifier and dense embeddings (`all-MiniLM-L6-v2`) overcome keyword brittleness, allowing the engine to recognize customer paraphrasing and implicit requests.
+1. **Classification Trade-off (Supervised vs. Keyword Rules):**
+   The baseline keyword classifier achieved higher accuracy (0.6875 vs 0.6250) on this synthetic test set because synthetic test prompts contain distinct lexical keywords directly targeted by baseline dictionary heuristics. The supervised TF-IDF + Logistic Regression model was trained on only 34 synthetic training examples across 9 classes (~3–4 samples per class), creating sample sparsity. However, the supervised classifier outputs continuous probability distributions across all classes, enabling principled confidence-based escalation thresholds rather than hardcoded step functions.
 
-2. **Latency Trade-off:**
-   The lightweight baseline runs in under 1 ms because it relies on string scanning. The improved hybrid model takes ~15–30 ms on CPU due to 384-dimensional dense vector embeddings. However, 15–30 ms remains well within interactive real-time UX thresholds (< 100 ms). Furthermore, the in-memory cache bypasses embedding computation on repeated requests, reducing latency back down to sub-millisecond execution.
+2. **Retrieval Trade-off (Lexical Jaccard vs. Dense Hybrid):**
+   Baseline canonical Jaccard scored higher Recall@1 (0.9062 vs 0.7500) on short synthetic queries because queries shared exact tokens with knowledge document titles. For concise queries, dense embeddings (`all-MiniLM-L6-v2`) map to semantically related but adjacent documents (e.g., retrieving general account access instead of password reset), though Recall@3 reaches 0.7500. The hybrid model provides tolerance to natural paraphrasing and synonyms that strict token overlap misses.
 
-3. **Deterministic Safety:**
-   Even when the classifier output is ambiguous or high-confidence, policy guardrails reliably intercept restricted financial actions and prompt injection attempts before response generation.
+3. **Deterministic Safety Enforcement (+16.7% Improvement):**
+   The improved decision engine increased restricted action and prompt-injection enforcement from 66.7% (4/6) to 83.3% (5/6). Dedicated policy rules intercept adversarial instructions and unauthorized financial requests before response generation, independent of classifier confidence.
+
+4. **Operational Optimization vs. Model Quality:**
+   The in-memory SHA-256 query cache delivers a **{d['cache_speedup_factor']}x latency speedup** on repeated requests, reducing response time from ~15 ms to ~1.9 ms. This is an operational efficiency optimization that reduces compute and latency without altering model quality or safety guarantees.
 """
     with path.open("w", encoding="utf-8") as f:
         f.write(content.strip() + "\n")

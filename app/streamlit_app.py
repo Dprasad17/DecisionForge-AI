@@ -335,7 +335,7 @@ with tab3:
                ▼
         [Stage 1] Supervised Classifier (scikit-learn TF-IDF + Logistic Regression)
                ├── Intent Category (e.g. payment_issue, refund_request)
-               └── Calibrated Confidence Distribution (predict_proba)
+               └── Class Probability Distribution (predict_proba)
                │
                ▼
         [Stage 2] Hybrid Knowledge Retrieval (all-MiniLM-L6-v2 + BM25/Coverage)

@@ -24,7 +24,7 @@ def test_classifier_training_and_classes():
 
 
 def test_classifier_prediction_output():
-    """Verify prediction output types, confidence range, and probability calibration."""
+    """Verify prediction output types, confidence range, and probability distribution."""
     classifier = IntentClassifier(auto_train=True)
     query = "I forgot my master password and cannot sign in."
     category, confidence, class_probs = classifier.predict(query)

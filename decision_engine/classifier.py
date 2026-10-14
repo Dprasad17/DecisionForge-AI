@@ -3,7 +3,7 @@ DecisionForge AI — Lightweight Supervised Request Classifier (Approach A)
 
 Uses scikit-learn Pipeline with TfidfVectorizer and LogisticRegression.
 Trained strictly on the training partition of data/synthetic_requests.csv.
-Provides calibrated probability confidence scores via predict_proba.
+Provides class probability distributions and confidence scores via predict_proba.
 """
 
 from __future__ import annotations

@@ -48,5 +48,5 @@ The Phase 2 Baseline System implements a deliberately simple, fast, and determin
 |---|---|---|
 | **Lack of Semantic Generalization** | Fails to recognize synonyms or paraphrasing (e.g., "reimbursement" if not in the keyword list). | Supervised TF-IDF vectorizer + Logistic Regression classifier. |
 | **Brittle Keyword Retrieval** | Jaccard overlap favors documents with common vocabulary rather than conceptual relevance. | Dense semantic embeddings (`sentence-transformers`) with cosine similarity. |
-| **Coarse Confidence Heuristic** | Confidence is stepped (`0.85`, `0.65`, `0.20`) rather than a calibrated probability distribution. | Calibrated class probabilities from logistic regression (`predict_proba`). |
+| **Coarse Confidence Heuristic** | Confidence is stepped (`0.85`, `0.65`, `0.20`) rather than a continuous probability distribution. | Class probability distributions from logistic regression (`predict_proba`). |
 | **Rigid Template Responses** | Responses follow fixed phrasing and cannot adapt tone to nuanced customer inquiries. | Controlled grounded generation with explicit evidence constraints. |

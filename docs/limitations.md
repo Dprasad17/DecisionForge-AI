@@ -5,9 +5,10 @@
 ### Approach A: TF-IDF + Logistic Regression (Classifier)
 - **Why chosen:**
   - Fast training (< 0.1s) and sub-millisecond CPU inference time.
-  - Produces calibrated class probability distributions via `predict_proba()`.
+  - Produces multi-class probability distributions via `predict_proba()` (softmax outputs over linear log-odds).
   - Avoids the overhead, GPU requirements, and cold-start latency of fine-tuning large language models.
-- **Trade-off:**
+- **Trade-off & Calibration Limitation:**
+  - **No Explicit Probability Calibration:** The model outputs raw softmax probabilities from standard `LogisticRegression(C=5.0)`. It is not post-processed using explicit calibration methods (such as `CalibratedClassifierCV` with Platt scaling or isotonic regression). On small datasets ($N=34$ training samples), raw softmax outputs can be overconfident. Confidence scores serve as operational ranking signals for policy thresholding rather than true statistical probabilities.
   - Sensitive to vocabulary overlap between training and test sets.
   - Less capable of complex syntactic reasoning compared to deep transformer classifiers.
 
