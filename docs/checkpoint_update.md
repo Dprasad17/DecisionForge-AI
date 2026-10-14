@@ -31,22 +31,22 @@ All mandatory functional requirements defined in the **VEGAH Round 2 Assessment 
 - Generated machine-readable metrics (`evaluation/results/evaluation_summary.json`) and markdown report (`docs/evaluation_report.md`).
 - Achieved **87.5% Intent Accuracy** (+0.1875 over baseline), **0.8813 Macro-F1** (+0.1953 over baseline), **0.9062 Recall@1 / 0.9375 Recall@3**, and **100.0% Safety Enforcement Rate** (6/6 blocked/escalated vs baseline's 66.7%).
 
-### D. Full-Stack Delivery (R7)
+### D. Full-Stack Delivery & Live Deployment (R7)
 - **Backend:** FastAPI application (`backend/main.py`) exposing `/api/analyze`, `/api/health`, `/api/samples`, and `/api/evaluation`.
-- **Frontend:** Streamlit interactive Decision Studio (`app/streamlit_app.py`) featuring preset demonstration scenarios, live status badges, evidence inspection cards, full JSON audit trace viewer, and evaluation laboratory tab.
+- **Frontend UI:** Streamlit interactive Decision Studio (`app/streamlit_app.py`) featuring preset demonstration scenarios, live status badges, evidence inspection cards, full JSON audit trace viewer, and evaluation laboratory tab.
+- **Live Deployed URL:** [https://decisionforge-ai-cthesr4rscshyv7oz7hgow.streamlit.app/](https://decisionforge-ai-cthesr4rscshyv7oz7hgow.streamlit.app/)
+- **GitHub Repository:** [https://github.com/Dprasad17/DecisionForge-AI](https://github.com/Dprasad17/DecisionForge-AI)
 
 ### E. Test Suite & Engineering Rigor
 - **34 automated tests** in `tests/` covering data validation, leakage prevention, baseline execution, classifier probability distributions, semantic retrieval, policy guardrails, caching optimization, evaluation reporting, and API integration. All tests pass with zero failures.
 
 ---
 
-## 3. Current Blockers & Constraints
-- **Remote Git & Hosting:** Work has been conducted strictly on the local workspace (`C:\DecisionForageAI`). No remote repository or third-party cloud hosting credentials have been configured or pushed.
+## 3. Current Constraints
 - **Simulation Scope:** All data and execution remain synthetic simulations; no real-world banking transactions are executed.
 
 ---
 
 ## 4. Immediate Next Priorities
-1. Initialize remote Git repository push upon provision of remote credentials.
-2. Deploy containerized bundle to cloud host (e.g. HuggingFace Spaces or Streamlit Community Cloud) upon user direction.
-3. Record five-minute video presentation following the ready-to-record script in `docs/demo_script.md`.
+1. Record five-minute video presentation following the ready-to-record script in `docs/demo_script.md`.
+2. Submit final evaluation package with GitHub repository and verified live application URL.
