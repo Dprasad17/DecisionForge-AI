@@ -37,7 +37,8 @@ STOPWORDS: Set[str] = {
     "have", "has", "had", "do", "does", "did", "can", "could", "will",
     "would", "should", "i", "me", "my", "you", "your", "it", "its", "we",
     "our", "they", "their", "this", "that", "these", "those", "how", "what",
-    "where", "when", "why", "which", "who", "all", "any", "some", "not", "no"
+    "where", "when", "why", "which", "who", "all", "any", "some", "not", "no",
+    "but", "cannot", "can't", "don't", "didn't", "won't"
 }
 
 # Baseline Keyword Rules for Intent Classification
@@ -143,11 +144,24 @@ class BaselineDecisionEngine:
 
         return best_category, confidence
 
+    def compute_jaccard_overlap(self, query_tokens: Set[str], doc_tokens: Set[str]) -> float:
+        """
+        Computes canonical Jaccard similarity between query and document token sets:
+        J(Q, D) = |Q ∩ D| / |Q ∪ D|
+        """
+        if not query_tokens or not doc_tokens:
+            return 0.0
+        intersection = query_tokens & doc_tokens
+        union = query_tokens | doc_tokens
+        return len(intersection) / len(union) if union else 0.0
+
     def retrieve_top1_evidence(
         self, query: str, category: Optional[str] = None
     ) -> Tuple[Optional[dict], float, Optional[str]]:
         """
-        Retrieves top-1 document based on query token coverage and title/category alignment.
+        Retrieves top-1 document based on canonical Jaccard token overlap:
+        J(Q, D) = |Q ∩ D| / |Q ∪ D|
+        over combined document title and content tokens.
         Returns (document, score, excerpt).
         """
         query_tokens = set(tokenize(query))
@@ -158,27 +172,23 @@ class BaselineDecisionEngine:
         best_score: float = 0.0
 
         for doc in self.knowledge_base:
-            content_tokens: Set[str] = doc.get("_tokens", set())
-            title_tokens: Set[str] = set(tokenize(doc.get("title", "")))
+            doc_tokens: Set[str] = doc.get("_tokens", set())
+            intersection = query_tokens & doc_tokens
 
-            content_overlap = query_tokens & content_tokens
-            title_overlap = query_tokens & title_tokens
+            # Require at least 2 distinct token matches to prevent single-word false positives
+            if len(intersection) < 2:
+                continue
 
-            # Query token coverage + title match bonus + category alignment bonus
-            coverage = len(content_overlap) / len(query_tokens) if query_tokens else 0.0
-            title_bonus = len(title_overlap) * 0.15
-            category_bonus = 0.10 if (category and doc.get("category") == category) else 0.0
+            # Pure canonical Jaccard similarity
+            jaccard_score = self.compute_jaccard_overlap(query_tokens, doc_tokens)
 
-            total_score = coverage + title_bonus + category_bonus
-
-            # Require at least 2 distinct content token matches
-            if len(content_overlap) >= 2 and total_score > best_score:
-                best_score = total_score
+            if jaccard_score > best_score:
+                best_score = jaccard_score
                 best_doc = doc
 
         # Minimum score threshold for baseline
-        MIN_SCORE = 0.25
-        if best_doc is None or best_score < MIN_SCORE:
+        MIN_JACCARD_SCORE = 0.03
+        if best_doc is None or best_score < MIN_JACCARD_SCORE:
             return None, 0.0, None
 
         # Extract relevant excerpt (first 200 chars or sentence matching a keyword)

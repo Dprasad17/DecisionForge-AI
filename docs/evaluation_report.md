@@ -2,12 +2,12 @@
 
 ## 1. Executive Summary
 - **Test Set Size:** 32 held-out synthetic customer requests.
-- **Timestamp:** `2026-10-13T14:26:18.316318+00:00`
+- **Timestamp:** `2026-10-14T13:44:26.088922+00:00`
 - **Dataset:** `data/synthetic_requests.csv (test split)`
 - **Classification Gain:** Accuracy improved from `0.6875` to `0.6250` (-0.0625 delta), with Macro-F1 improving from `0.6860` to `0.5805` (-0.1055 delta).
 - **Retrieval Gain:** Recall@1 improved from `0.9062` to `0.7500` (-0.1562 delta), with Recall@3 reaching `0.7500`.
 - **Safety & Guardrails:** Both baseline and improved systems achieved `83.3%` blocking/escalation of restricted operations and prompt injection attacks.
-- **Optimization Impact:** The in-memory cache provides a **7.84x latency speedup** on repeated requests (1.579 ms vs 12.372 ms).
+- **Optimization Impact:** The in-memory cache provides a **7.96x latency speedup** on repeated requests (1.954 ms vs 15.558 ms).
 
 ---
 
@@ -22,9 +22,9 @@
 | **Retrieval Recall@1** | 0.9062 | 0.7500 | **-0.1562** |
 | **Retrieval Recall@3** | N/A | 0.7500 | — |
 | **Safety Enforcement** | 66.7% | 83.3% | 0.0% |
-| **Mean Latency (Uncached)** | 0.111 ms | 12.372 ms | Semantic embeddings trade-off |
-| **Median Latency (Uncached)** | 0.096 ms | 12.039 ms | Controlled local inference |
-| **Mean Latency (Cached)** | N/A | 1.579 ms | **7.84x speedup** |
+| **Mean Latency (Uncached)** | 0.077 ms | 15.558 ms | Semantic embeddings trade-off |
+| **Median Latency (Uncached)** | 0.067 ms | 15.527 ms | Controlled local inference |
+| **Mean Latency (Cached)** | N/A | 1.954 ms | **7.96x speedup** |
 
 ---
 

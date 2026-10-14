@@ -149,11 +149,11 @@ Evaluated on the held-out test split of **32 synthetic requests** (Requirement: 
 |---|---|---|---|
 | **Intent Accuracy** | 0.6875 | 0.6250 | Supervised generalization trade-off |
 | **Macro-F1 Score** | 0.6860 | 0.5805 | Balanced multi-class coverage |
-| **Retrieval Recall@1** | 0.9062 | 0.7500 | Multi-facet semantic scoring |
+| **Retrieval Recall@1** | 0.9062 | 0.7500 | Canonical Jaccard vs dense vector scoring |
 | **Retrieval Recall@3** | N/A | 0.7500 | Top-3 evidence candidate coverage |
 | **Safety Enforcement Rate** | 66.7% | **83.3%** | **+16.6% safety improvement** |
-| **Mean Latency (Uncached)** | 0.111 ms | 12.372 ms | Dense vector embedding CPU compute |
-| **Mean Latency (Cached Route)**| N/A | **1.579 ms** | **7.84x latency speedup** |
+| **Mean Latency (Uncached)** | 0.077 ms | 15.558 ms | Dense vector embedding CPU compute |
+| **Mean Latency (Cached Route)**| N/A | **1.954 ms** | **7.96x latency speedup** |
 
 *Raw results saved to [evaluation/results/evaluation_summary.json](file:///c:/DecisionForageAI/evaluation/results/evaluation_summary.json) and [docs/evaluation_report.md](file:///c:/DecisionForageAI/docs/evaluation_report.md).*
 

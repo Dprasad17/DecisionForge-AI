@@ -14,8 +14,12 @@ The Phase 2 Baseline System implements a deliberately simple, fast, and determin
 
 ### 2.2 Knowledge Retrieval
 - **Corpus:** 12 synthetic policy and operational documents in `data/knowledge_base.json`.
-- **Method:** Top-1 Jaccard token overlap between query tokens (excluding common English stopwords) and document titles + content.
-- **Evidence Sufficiency Threshold:** A minimum overlap threshold of `0.03` is enforced. Queries failing to achieve this threshold trigger explicit no-evidence handling.
+- **Method:** Top-1 canonical Jaccard token overlap between query tokens and combined document title + content tokens.
+- **Formula:**
+  $$J(Q, D) = \frac{|Q \cap D|}{|Q \cup D|}$$
+  where $Q$ and $D$ are alphanumeric token sets filtered for English stopwords.
+- **Multi-Token Guard:** Requires at least 2 distinct intersecting content tokens ($|Q \cap D| \ge 2$) to eliminate single-word false positive matches.
+- **Evidence Sufficiency Threshold:** A minimum overlap threshold of `J(Q, D) >= 0.03` is enforced. Queries failing to achieve this threshold trigger explicit no-evidence handling.
 
 ### 2.3 Policy Rules & Safety Guardrails
 - **Restricted Action Overrides:** Hardcoded substring matching for sensitive or adversarial terms (`bypass`, `skip all`, `disburse`, `wire transfer`, `prompt injection`, `override`).

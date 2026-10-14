@@ -118,3 +118,43 @@ def test_reproducible_execution_and_latency():
     assert run1.response_text == run2.response_text
     assert run1.latency_ms > 0.0
     assert run2.latency_ms > 0.0
+
+
+def test_canonical_jaccard_calculation():
+    """Verify that compute_jaccard_overlap mathematically implements |Q ∩ D| / |Q ∪ D|."""
+    engine = BaselineDecisionEngine()
+    set_a = {"password", "reset", "account"}
+    set_b = {"password", "login", "account", "lockout"}
+
+    # Intersection: {'password', 'account'} -> 2
+    # Union: {'password', 'reset', 'account', 'login', 'lockout'} -> 5
+    # J = 2 / 5 = 0.40
+    expected_jaccard = 2.0 / 5.0
+    actual_jaccard = engine.compute_jaccard_overlap(set_a, set_b)
+    assert abs(actual_jaccard - expected_jaccard) < 1e-6
+
+    # Disjoint sets -> J = 0.0
+    assert engine.compute_jaccard_overlap({"alpha"}, {"beta"}) == 0.0
+
+    # Identical sets -> J = 1.0
+    assert engine.compute_jaccard_overlap({"alpha", "beta"}, {"alpha", "beta"}) == 1.0
+
+
+def test_top1_jaccard_selection_and_threshold():
+    """Verify top-1 document selection and rejection of queries below minimum token overlap threshold."""
+    engine = BaselineDecisionEngine()
+
+    # Query with strong multi-token overlap
+    query = "How do I cancel next month's subscription renewal?"
+    doc, score, excerpt = engine.retrieve_top1_evidence(query)
+    assert doc is not None
+    assert doc["id"] == "DOC-SUB-001"
+    assert score > 0.03
+    assert "subscription" in doc["title"].lower()
+
+    # Single-token overlap must be rejected by minimum 2-token threshold
+    single_token_query = "Something about cancellation."
+    doc_single, score_single, _ = engine.retrieve_top1_evidence(single_token_query)
+    assert doc_single is None
+    assert score_single == 0.0
+
