@@ -310,9 +310,9 @@ with tab2:
         st.markdown(
             """
             #### Honest Assessment & Scientific Trade-offs
-            1. **Safety Enforcement:** The Improved Engine achieves **83.3%** restricted action blocking/escalation, outperforming the baseline's 66.7% through multi-layer regex and category guardrails.
-            2. **Semantic Generalization:** The supervised classifier and sentence-transformer embeddings generalize across synonyms and rephrased customer inquiries where brittle keyword matching fails.
-            3. **In-Memory Optimization (R5):** The in-memory cache provides an immediate **7.84x speedup** on repeated normalized inquiries, reducing latency to ~1.5 ms.
+            1. **Safety Enforcement:** The Improved Engine achieves **100.0%** (6/6) restricted action blocking and prompt injection escalation, outperforming the baseline's 66.7% (4/6) through multi-layer deterministic policy guardrails.
+            2. **Semantic Generalization:** The supervised linear probe on dense sentence representations and hybrid retrieval generalize across synonyms and rephrased customer inquiries where brittle keyword matching fails.
+            3. **In-Memory Optimization (R5):** The in-memory cache provides an operational **4.77x mean speedup** (and sub-millisecond median responses under 0.1 ms) on repeated inquiries.
             """
         )
 

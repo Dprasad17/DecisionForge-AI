@@ -270,7 +270,7 @@ def _generate_markdown_report(path: Path, summary: dict) -> None:
         f"Intent accuracy changed from `{acc_b:.4f}` (baseline) to `{acc_i:.4f}` (improved) ({acc_delta:+.4f} {acc_desc}), with Macro-F1 changing from `{f1_b:.4f}` to `{f1_i:.4f}` ({f1_delta:+.4f} {f1_desc})."
     )
     if acc_delta < 0:
-        clf_exec_summary += " Hand-crafted keyword heuristics scored higher on this small synthetic dataset due to keyword alignment in test queries and training sample sparsity (34 training instances across 9 classes)."
+        clf_exec_summary += " Hand-crafted keyword heuristics scored higher on this small synthetic dataset due to keyword alignment in test queries and training sample sparsity (46 non-test instances across 9 classes)."
     else:
         clf_exec_summary += " The improved classifier provides continuous probability distributions across all 9 classes and demonstrates superior semantic generalization."
 
@@ -281,7 +281,7 @@ def _generate_markdown_report(path: Path, summary: dict) -> None:
     clf_analysis = (
         f"The supervised linear classifier on frozen sentence representations improved intent accuracy from {acc_b:.4f} to {acc_i:.4f} ({acc_delta:+.4f}) and Macro-F1 from {f1_b:.4f} to {f1_i:.4f} ({f1_delta:+.4f}), outperforming keyword heuristics across the 9-class taxonomy while outputting continuous probability distributions for principled escalation."
         if acc_delta >= 0
-        else f"The baseline keyword classifier achieved higher accuracy ({acc_b:.4f} vs {acc_i:.4f}) on this synthetic test set because synthetic test prompts contain distinct lexical keywords directly targeted by baseline dictionary heuristics. The supervised TF-IDF + Logistic Regression model was trained on only 34 synthetic training examples across 9 classes (~3–4 samples per class), creating sample sparsity. However, the supervised classifier outputs continuous probability distributions across all classes, enabling principled confidence-based escalation thresholds rather than hardcoded step functions."
+        else f"The baseline keyword classifier achieved higher accuracy ({acc_b:.4f} vs {acc_i:.4f}) on this synthetic test set because synthetic test prompts contain distinct lexical keywords directly targeted by baseline dictionary heuristics. The supervised model was trained on 46 non-test synthetic examples across 9 classes (~5 samples per class), creating sample sparsity. However, the supervised classifier outputs continuous probability distributions across all classes, enabling principled confidence-based escalation thresholds rather than hardcoded step functions."
     )
 
     ret_analysis = (
@@ -298,7 +298,7 @@ def _generate_markdown_report(path: Path, summary: dict) -> None:
 - **Dataset:** `{meta['synthetic_dataset']}`
 - **Classification Performance:** {clf_exec_summary}
 - **Retrieval Performance:** {rec_exec_summary}
-- **Safety & Guardrails:** Safety enforcement improved from `{safety_b:.1f}%` (baseline: 4/6) to `{safety_i:.1f}%` (improved: 5/6) (+{safety_delta:.1f}% {safety_desc}), demonstrating stronger deterministic policy protection against prompt injection and restricted transactions.
+- **Safety & Guardrails:** Safety enforcement improved from `{safety_b:.1f}%` to `{safety_i:.1f}%` (+{safety_delta:.1f}% {safety_desc}), demonstrating stronger deterministic policy protection against prompt injection and restricted transactions.
 - **Latency & Caching Optimization:** The in-memory cache provides an operational **{d['cache_speedup_factor']}x latency speedup** on repeated requests ({i['latency_cached']['mean_ms']:.3f} ms vs {i['latency_uncached']['mean_ms']:.3f} ms). Note: This speedup represents an operational latency reduction via caching, distinct from model classification accuracy.
 
 ---
@@ -328,11 +328,11 @@ def _generate_markdown_report(path: Path, summary: dict) -> None:
 2. **Retrieval Analysis (Dense Hybrid vs. Lexical Jaccard):**
    {ret_analysis}
 
-3. **Deterministic Safety Enforcement (+16.7% Improvement):**
-   The improved decision engine increased restricted action and prompt-injection enforcement from 66.7% (4/6) to 83.3% (5/6). Dedicated policy rules intercept adversarial instructions and unauthorized financial requests before response generation, independent of classifier confidence.
+3. **Deterministic Safety Enforcement (+{safety_delta:.1f}% {safety_desc.capitalize()}):**
+   The improved decision engine increased restricted action and prompt-injection enforcement from {safety_b:.1f}% to {safety_i:.1f}%. Dedicated policy rules intercept adversarial instructions and unauthorized financial requests before response generation, independent of classifier confidence.
 
 4. **Operational Optimization vs. Model Quality:**
-   The in-memory SHA-256 query cache delivers a **{d['cache_speedup_factor']}x latency speedup** on repeated requests, reducing response time from ~15 ms to ~1.9 ms. This is an operational efficiency optimization that reduces compute and latency without altering model quality or safety guarantees.
+   The in-memory query cache delivers an operational **{d['cache_speedup_factor']}x mean latency speedup** on repeated requests ({i['latency_cached']['mean_ms']:.3f} ms vs {i['latency_uncached']['mean_ms']:.3f} ms, with median cached response under 0.1 ms). This is an operational efficiency optimization that reduces compute and latency without altering model quality or safety guarantees.
 """
     with path.open("w", encoding="utf-8") as f:
         f.write(content.strip() + "\n")

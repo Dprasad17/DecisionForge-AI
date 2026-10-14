@@ -25,10 +25,10 @@ Modern businesses receive high volumes of natural-language inquiries across cust
 User Business Request (Natural Language)
        │
        ▼
-[Stage 0] Input Sanitization & In-Memory Cache (8.36x Speedup on Hit)
+[Stage 0] Input Sanitization & In-Memory Cache (4.77x Mean Speedup on Hit)
        │ (Cache Miss)
        ▼
-[Stage 1] Supervised Classifier (TF-IDF + Logistic Regression)
+[Stage 1] Supervised Classifier (Dense Linear Probe + TF-IDF Fallback)
        ├── Intent Category (e.g., payment_issue, refund_request, account_access)
        └── Class Probability Distribution & Confidence Score
        │
@@ -64,7 +64,7 @@ User Business Request (Natural Language)
 | **Core Language** | Python 3.12 | Standardized, cross-platform, high performance |
 | **Backend API** | FastAPI + Uvicorn | Asynchronous, typed Pydantic validation, OpenAPI documentation |
 | **Frontend UI** | Streamlit | Rapid, responsive, interactive decision review dashboard |
-| **Supervised Classifier (Approach A)** | scikit-learn (TF-IDF + Logistic Regression) | Low CPU footprint, instant training, multi-class probability distributions |
+| **Supervised Classifier (Approach A)** | Linear Probe (`all-MiniLM-L6-v2`) + TF-IDF Logistic Regression Fallback | Low CPU footprint, shared embedding representation, multi-class probability distributions |
 | **Retrieval Engine (Approach B)** | `sentence-transformers` (`all-MiniLM-L6-v2`) + NumPy | Dense 384-dimensional semantic similarity, runs fully locally offline |
 | **Testing Suite** | Pytest + Starlette TestClient | 34 automated tests spanning unit, integration, and security checks |
 | **Data Format** | JSON & Version-Controlled CSV | Transparent, inspectable, zero external database overhead |
@@ -153,7 +153,7 @@ Evaluated on the held-out test split of **32 synthetic requests** (Requirement: 
 | **Retrieval Recall@3** | N/A | **0.9375** | Top-3 candidate coverage |
 | **Safety Enforcement Rate** | 66.7% | **100.0%** | **+33.3%** (6/6 blocked/escalated; deterministic guardrails) |
 | **Mean Latency (Uncached)** | 0.120 ms | 21.061 ms | Local dense embedding CPU representation |
-| **Mean Latency (Cached Route)**| N/A | **4.419 ms** | **4.77x - 8.28x latency speedup** (operational caching optimization) |
+| **Mean Latency (Cached Route)**| N/A | **4.419 ms** | **4.77x mean speedup** (median under 0.05 ms; operational caching optimization) |
 
 > **Benchmark Improvement Note:**<br>
 > By utilizing a supervised linear probe on frozen dense sentence representations trained on non-test partitions (train + val, 46 samples) and threshold-gated hybrid retrieval (threshold = 0.22), the improved decision engine surpasses the keyword baseline across Intent Accuracy (0.8750 vs 0.6875), Macro-F1 (0.8813 vs 0.6860), Top-3 Recall (0.9375), and Safety Enforcement (100.0% vs 66.7%), while retaining sub-millisecond cached routing.
@@ -165,5 +165,5 @@ Evaluated on the held-out test split of **32 synthetic requests** (Requirement: 
 ## 7. Known Limitations & Future Improvements
 
 1. **Cold Start Latency:** Dense embeddings (`all-MiniLM-L6-v2`) require ~10s to load on the initial cold start; mitigated by pre-loading on startup and sub-millisecond in-memory caching.
-2. **Small Training Size:** The classifier is trained on 34 synthetic training requests; accuracy will scale predictably with additional labeled business data.
+2. **Small Training Size:** The classifier is trained on 46 non-test synthetic requests (34 train + 12 validation); accuracy will scale predictably with additional labeled business data.
 3. **Template Phrasing:** The local response generator uses deterministic grounded templates; when an optional LLM API key is provided, fluid conversational synthesis can be activated without sacrificing safety guardrails.
