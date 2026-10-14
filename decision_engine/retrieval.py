@@ -121,12 +121,32 @@ class HybridRetriever:
         title_bonus = len(t_overlap) * 0.15
         return min(1.0, coverage + title_bonus)
 
+    def encode_query(self, query: str) -> Optional[np.ndarray]:
+        """Encodes query string into L2-normalized 384-d dense embedding."""
+        if self.encoder is None:
+            return None
+        clean_query = query.strip()
+        if not clean_query:
+            return None
+        try:
+            q_emb = self.encoder.encode([clean_query], show_progress_bar=False)[0]
+            q_norm = np.linalg.norm(q_emb)
+            return (q_emb / q_norm) if q_norm > 0 else q_emb
+        except Exception:
+            return None
+
     def retrieve_top_k(
-        self, query: str, k: int = 3, category: Optional[str] = None
+        self,
+        query: str,
+        k: int = 3,
+        category: Optional[str] = None,
+        query_embedding: Optional[np.ndarray] = None,
+        apply_threshold: bool = True,
     ) -> List[RetrievedDocument]:
         """
         Retrieves top-k documents using hybrid scoring:
         hybrid_score = 0.7 * semantic_similarity + 0.3 * keyword_score
+        Optionally filters out candidates below self.threshold.
         """
         clean_query = query.strip()
         query_tokens = set(tokenize(clean_query))
@@ -138,13 +158,16 @@ class HybridRetriever:
         semantic_scores = np.zeros(len(self.documents))
         if self.encoder is not None and self.doc_embeddings is not None:
             try:
-                q_emb = self.encoder.encode([clean_query], show_progress_bar=False)[0]
-                q_norm = np.linalg.norm(q_emb)
-                if q_norm > 0:
-                    q_emb = q_emb / q_norm
-                    # Cosine similarities
+                if query_embedding is not None:
+                    q_emb = query_embedding.flatten()
+                    q_norm = np.linalg.norm(q_emb)
+                    if q_norm > 0:
+                        q_emb = q_emb / q_norm
+                else:
+                    q_emb = self.encode_query(clean_query)
+
+                if q_emb is not None:
                     semantic_scores = np.dot(self.doc_embeddings, q_emb)
-                    # Clip to [0, 1]
                     semantic_scores = np.clip(semantic_scores, 0.0, 1.0)
             except Exception:
                 semantic_scores = np.zeros(len(self.documents))
@@ -167,11 +190,14 @@ class HybridRetriever:
                     combined_scores[idx] += 0.05
 
         # Rank indices
-        top_indices = np.argsort(combined_scores)[::-1][:k]
+        top_indices = np.argsort(combined_scores)[::-1]
 
         results: List[RetrievedDocument] = []
         for idx in top_indices:
             score = float(combined_scores[idx])
+            if apply_threshold and score < self.threshold:
+                continue
+
             doc = self.documents[idx]
 
             # Extract relevant sentence excerpt
@@ -195,21 +221,28 @@ class HybridRetriever:
                     source_metadata=doc.get("source_metadata", {}),
                 )
             )
+            if len(results) >= k:
+                break
 
         return results
 
     def retrieve_top1(
-        self, query: str, category: Optional[str] = None
+        self,
+        query: str,
+        category: Optional[str] = None,
+        query_embedding: Optional[np.ndarray] = None,
     ) -> Tuple[Optional[RetrievedDocument], float]:
         """
         Retrieves top-1 document, returning (doc, score) if score >= threshold,
         else (None, top_score).
         """
-        candidates = self.retrieve_top_k(query=query, k=1, category=category)
-        if not candidates:
+        unfiltered = self.retrieve_top_k(
+            query=query, k=1, category=category, query_embedding=query_embedding, apply_threshold=False
+        )
+        if not unfiltered:
             return None, 0.0
 
-        top = candidates[0]
+        top = unfiltered[0]
         if top.score < self.threshold:
             return None, top.score
         return top, top.score

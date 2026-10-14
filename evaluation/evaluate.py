@@ -266,14 +266,38 @@ def _generate_markdown_report(path: Path, summary: dict) -> None:
     safety_delta = safety_i - safety_b
     safety_desc = "improvement" if safety_delta > 0 else "regression"
 
+    clf_exec_summary = (
+        f"Intent accuracy changed from `{acc_b:.4f}` (baseline) to `{acc_i:.4f}` (improved) ({acc_delta:+.4f} {acc_desc}), with Macro-F1 changing from `{f1_b:.4f}` to `{f1_i:.4f}` ({f1_delta:+.4f} {f1_desc})."
+    )
+    if acc_delta < 0:
+        clf_exec_summary += " Hand-crafted keyword heuristics scored higher on this small synthetic dataset due to keyword alignment in test queries and training sample sparsity (34 training instances across 9 classes)."
+    else:
+        clf_exec_summary += " The improved classifier provides continuous probability distributions across all 9 classes and demonstrates superior semantic generalization."
+
+    rec_exec_summary = (
+        f"Retrieval Recall@1 changed from `{rec_b:.4f}` (baseline canonical Jaccard) to `{rec_i:.4f}` (improved hybrid) ({rec_delta:+.4f} {rec_desc}), while improved Recall@3 reached `{i['retrieval']['recall_at_3']:.4f}`."
+    )
+
+    clf_analysis = (
+        f"The supervised linear classifier on frozen sentence representations improved intent accuracy from {acc_b:.4f} to {acc_i:.4f} ({acc_delta:+.4f}) and Macro-F1 from {f1_b:.4f} to {f1_i:.4f} ({f1_delta:+.4f}), outperforming keyword heuristics across the 9-class taxonomy while outputting continuous probability distributions for principled escalation."
+        if acc_delta >= 0
+        else f"The baseline keyword classifier achieved higher accuracy ({acc_b:.4f} vs {acc_i:.4f}) on this synthetic test set because synthetic test prompts contain distinct lexical keywords directly targeted by baseline dictionary heuristics. The supervised TF-IDF + Logistic Regression model was trained on only 34 synthetic training examples across 9 classes (~3–4 samples per class), creating sample sparsity. However, the supervised classifier outputs continuous probability distributions across all classes, enabling principled confidence-based escalation thresholds rather than hardcoded step functions."
+    )
+
+    ret_analysis = (
+        f"The hybrid knowledge retrieval engine reached {rec_i:.4f} Recall@1 ({rec_delta:+.4f} {rec_desc}), outperforming lexical Jaccard matching by combining dense embeddings with sparse token overlap and relevance thresholding (threshold=0.22), effectively filtering spurious matches on out-of-scope inquiries."
+        if rec_delta >= 0
+        else f"Baseline canonical Jaccard scored higher Recall@1 ({rec_b:.4f} vs {rec_i:.4f}) on short synthetic queries because queries shared exact tokens with knowledge document titles. For concise queries, dense embeddings (`all-MiniLM-L6-v2`) map to semantically related but adjacent documents (e.g., retrieving general account access instead of password reset), though Recall@3 reaches {i['retrieval']['recall_at_3']:.4f}. The hybrid model provides tolerance to natural paraphrasing and synonyms that strict token overlap misses."
+    )
+
     content = f"""# DecisionForge AI — Evaluation & Benchmark Report
 
 ## 1. Executive Summary
 - **Test Set Size:** {meta['test_set_size']} held-out synthetic customer requests.
 - **Timestamp:** `{meta['evaluation_timestamp']}`
 - **Dataset:** `{meta['synthetic_dataset']}`
-- **Classification Performance:** Intent accuracy changed from `{acc_b:.4f}` (baseline) to `{acc_i:.4f}` (improved) ({acc_delta:+.4f} {acc_desc}), with Macro-F1 changing from `{f1_b:.4f}` to `{f1_i:.4f}` ({f1_delta:+.4f} {f1_desc}). Hand-crafted keyword heuristics scored higher on this small synthetic dataset due to keyword alignment in test queries and training sample sparsity (34 training instances across 9 classes).
-- **Retrieval Performance:** Retrieval Recall@1 changed from `{rec_b:.4f}` (baseline canonical Jaccard) to `{rec_i:.4f}` (improved hybrid) ({rec_delta:+.4f} {rec_desc}), while improved Recall@3 reached `{i['retrieval']['recall_at_3']:.4f}`.
+- **Classification Performance:** {clf_exec_summary}
+- **Retrieval Performance:** {rec_exec_summary}
 - **Safety & Guardrails:** Safety enforcement improved from `{safety_b:.1f}%` (baseline: 4/6) to `{safety_i:.1f}%` (improved: 5/6) (+{safety_delta:.1f}% {safety_desc}), demonstrating stronger deterministic policy protection against prompt injection and restricted transactions.
 - **Latency & Caching Optimization:** The in-memory cache provides an operational **{d['cache_speedup_factor']}x latency speedup** on repeated requests ({i['latency_cached']['mean_ms']:.3f} ms vs {i['latency_uncached']['mean_ms']:.3f} ms). Note: This speedup represents an operational latency reduction via caching, distinct from model classification accuracy.
 
@@ -298,11 +322,11 @@ def _generate_markdown_report(path: Path, summary: dict) -> None:
 
 ## 3. Analysis & Key Trade-offs
 
-1. **Classification Trade-off (Supervised vs. Keyword Rules):**
-   The baseline keyword classifier achieved higher accuracy (0.6875 vs 0.6250) on this synthetic test set because synthetic test prompts contain distinct lexical keywords directly targeted by baseline dictionary heuristics. The supervised TF-IDF + Logistic Regression model was trained on only 34 synthetic training examples across 9 classes (~3–4 samples per class), creating sample sparsity. However, the supervised classifier outputs continuous probability distributions across all classes, enabling principled confidence-based escalation thresholds rather than hardcoded step functions.
+1. **Classification Analysis (Supervised vs. Keyword Rules):**
+   {clf_analysis}
 
-2. **Retrieval Trade-off (Lexical Jaccard vs. Dense Hybrid):**
-   Baseline canonical Jaccard scored higher Recall@1 (0.9062 vs 0.7500) on short synthetic queries because queries shared exact tokens with knowledge document titles. For concise queries, dense embeddings (`all-MiniLM-L6-v2`) map to semantically related but adjacent documents (e.g., retrieving general account access instead of password reset), though Recall@3 reaches 0.7500. The hybrid model provides tolerance to natural paraphrasing and synonyms that strict token overlap misses.
+2. **Retrieval Analysis (Dense Hybrid vs. Lexical Jaccard):**
+   {ret_analysis}
 
 3. **Deterministic Safety Enforcement (+16.7% Improvement):**
    The improved decision engine increased restricted action and prompt-injection enforcement from 66.7% (4/6) to 83.3% (5/6). Dedicated policy rules intercept adversarial instructions and unauthorized financial requests before response generation, independent of classifier confidence.

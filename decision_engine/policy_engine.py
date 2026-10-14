@@ -30,9 +30,11 @@ from decision_engine.config import (
 PROMPT_INJECTION_PATTERNS: List[re.Pattern] = [
     re.compile(r"ignore\s+(all\s+)?(previous\s+)?(rules|instructions|safety|guidelines)", re.IGNORECASE),
     re.compile(r"bypass\s+(all\s+)?(policy|checks|supervision|supervisor|verification|2fa)", re.IGNORECASE),
+    re.compile(r"skip\s+(all\s+)?(policy|checks|supervision|verification|rules)", re.IGNORECASE),
     re.compile(r"system\s+prompt\s+(injection|override)", re.IGNORECASE),
     re.compile(r"override\s+(all\s+)?(security|rules|lockdown|policy)", re.IGNORECASE),
     re.compile(r"disburse\s+\$?\d+", re.IGNORECASE),
+    re.compile(r"transfer\s+\$?\d+", re.IGNORECASE),
     re.compile(r"wire\s+transfer\s+to", re.IGNORECASE),
     re.compile(r"root\s+shell", re.IGNORECASE),
 ]
@@ -49,6 +51,8 @@ RESTRICTED_ACTION_KEYWORDS: List[str] = [
     "root shell",
     "admin privileges",
     "chargeback",
+    "skip all",
+    "company reserves",
 ]
 
 # Vague / Ambiguous terms

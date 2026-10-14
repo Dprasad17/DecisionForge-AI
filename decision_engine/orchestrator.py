@@ -181,15 +181,22 @@ class DecisionEngineOrchestrator:
             )
 
         # -------------------------------------------------------------
+        # Stage 0: Unified Query Representation (Shared across stages)
+        # -------------------------------------------------------------
+        query_emb = self.retriever.encode_query(clean_query)
+
+        # -------------------------------------------------------------
         # Stage 1: Request Classification (Approach A)
         # -------------------------------------------------------------
-        category, confidence, class_probs = self.classifier.predict(clean_query)
+        category, confidence, class_probs = self.classifier.predict(
+            clean_query, embedding=query_emb
+        )
 
         # -------------------------------------------------------------
         # Stage 2: Knowledge Retrieval (Approach B)
         # -------------------------------------------------------------
         retrieved_docs: List[RetrievedDocument] = self.retriever.retrieve_top_k(
-            query=clean_query, k=3, category=category
+            query=clean_query, k=3, category=category, query_embedding=query_emb, apply_threshold=True
         )
 
         top_evidence_doc = retrieved_docs[0] if retrieved_docs else None

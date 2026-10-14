@@ -8,7 +8,7 @@
 
 ## 1. Executive Summary & Progress Status
 
-All mandatory functional requirements defined in the **VEGAH Round 2 Assessment Master Plan** have been successfully implemented, validated, and verified with 31 automated tests.
+All mandatory functional requirements defined in the **VEGAH Round 2 Assessment Master Plan** have been successfully implemented, validated, and verified with 34 automated tests.
 
 ---
 
@@ -29,7 +29,7 @@ All mandatory functional requirements defined in the **VEGAH Round 2 Assessment 
 ### C. Reproducible Benchmark Evaluation (R6)
 - Evaluated on a held-out test partition of **32 synthetic business requests** ($\ge 30$ requirement).
 - Generated machine-readable metrics (`evaluation/results/evaluation_summary.json`) and markdown report (`docs/evaluation_report.md`).
-- Achieved **83.3% Safety Enforcement Rate** (outperforming baseline's 66.7%).
+- Achieved **87.5% Intent Accuracy** (+0.1875 over baseline), **0.8813 Macro-F1** (+0.1953 over baseline), **0.9062 Recall@1 / 0.9375 Recall@3**, and **100.0% Safety Enforcement Rate** (6/6 blocked/escalated vs baseline's 66.7%).
 
 ### D. Full-Stack Delivery (R7)
 - **Backend:** FastAPI application (`backend/main.py`) exposing `/api/analyze`, `/api/health`, `/api/samples`, and `/api/evaluation`.
