@@ -333,6 +333,39 @@ def _generate_markdown_report(path: Path, summary: dict) -> None:
 
 4. **Operational Optimization vs. Model Quality:**
    The in-memory query cache delivers an operational **{d['cache_speedup_factor']}x mean latency speedup** on repeated requests ({i['latency_cached']['mean_ms']:.3f} ms vs {i['latency_uncached']['mean_ms']:.3f} ms, with median cached response under 0.1 ms). This is an operational efficiency optimization that reduces compute and latency without altering model quality or safety guarantees.
+
+---
+
+## 4. Evaluation Methodology & Dataset Partitions
+
+- **Total Dataset:** 78 synthetic customer service requests across 9 distinct intent categories (`account_access`, `billing_inquiry`, `complaint`, `data_privacy`, `dispute_filing`, `other_or_unclear`, `payment_issue`, `refund_request`, `technical_problem`).
+- **Non-Test Training Partitions:** 46 non-test instances (34 `train` + 12 `val`) used for model training and validation thresholding.
+- **Held-Out Test Partition:** 32 strictly held-out test instances with zero overlap with training examples and zero test data leakage.
+- **Leakage Prevention:** Verified via automated script `data/validate_data.py`, ensuring all evaluation metrics reflect genuine generalization rather than memorization.
+
+---
+
+## 5. Exact Commands to Reproduce Results
+
+To independently reproduce all evaluation metrics and regenerate this report:
+
+```powershell
+# 1. Run the entire automated test suite (34 unit & integration tests)
+pytest -v
+
+# 2. Run the reproducible evaluation harness
+python evaluation/evaluate.py
+```
+
+---
+
+## 6. Generated Evaluation Artifacts & Runtime Environment
+
+- **Machine-Readable Summary:** `evaluation/results/evaluation_summary.json`
+- **Markdown Evaluation Report:** `docs/evaluation_report.md`
+- **Execution Hardware / Runtime:** Local standard CPU (no GPU required); Python 3.11/3.12 environment.
+- **Embedding Architecture:** `sentence-transformers` (`all-MiniLM-L6-v2`), 384-dimensional dense embeddings (~90MB model size).
+- **Classification Architecture:** Scikit-learn `LogisticRegression(C=5.0)` linear probe on frozen embeddings with TF-IDF fallback.
 """
     with path.open("w", encoding="utf-8") as f:
         f.write(content.strip() + "\n")

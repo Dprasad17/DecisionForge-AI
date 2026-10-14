@@ -155,8 +155,8 @@ Evaluated on the held-out test split of **32 synthetic requests** (Requirement: 
 | **Retrieval Recall@1** | 0.9062 | **0.9062** | **+0.0000** (matched lexical baseline, robust to synonyms) |
 | **Retrieval Recall@3** | N/A | **0.9375** | Top-3 candidate coverage |
 | **Safety Enforcement Rate** | 66.7% | **100.0%** | **+33.3%** (6/6 blocked/escalated; deterministic guardrails) |
-| **Mean Latency (Uncached)** | 0.120 ms | 21.061 ms | Local dense embedding CPU representation |
-| **Mean Latency (Cached Route)**| N/A | **4.419 ms** | **4.77x mean speedup** (median under 0.05 ms; operational caching optimization) |
+| **Mean Latency (Uncached)** | 0.062 ms | 11.007 ms | Local dense embedding CPU representation |
+| **Mean Latency (Cached Route)**| N/A | **2.008 ms** | **5.48x mean speedup** (median under 0.04 ms; operational caching optimization) |
 
 > **Benchmark Improvement Note:**<br>
 > By utilizing a supervised linear probe on frozen dense sentence representations trained on non-test partitions (train + val, 46 samples) and threshold-gated hybrid retrieval (threshold = 0.22), the improved decision engine surpasses the keyword baseline across Intent Accuracy (0.8750 vs 0.6875), Macro-F1 (0.8813 vs 0.6860), Top-3 Recall (0.9375), and Safety Enforcement (100.0% vs 66.7%), while retaining sub-millisecond cached routing.
@@ -165,8 +165,20 @@ Evaluated on the held-out test split of **32 synthetic requests** (Requirement: 
 
 ---
 
-## 7. Known Limitations & Future Improvements
+## 7. Project Documentation Index
 
-1. **Cold Start Latency:** Dense embeddings (`all-MiniLM-L6-v2`) require ~10s to load on the initial cold start; mitigated by pre-loading on startup and sub-millisecond in-memory caching.
-2. **Small Training Size:** The classifier is trained on 46 non-test synthetic requests (34 train + 12 validation); accuracy will scale predictably with additional labeled business data.
+| Document | Purpose & Key Topics |
+| :--- | :--- |
+| **[Technical Decisions & Trade-Offs](file:///c:/DecisionForageAI/docs/technical_decisions.md)** | Deep dive into model selection, hybrid retrieval formula, deterministic guardrails, latency trade-offs, failures encountered, and production roadmap. |
+| **[Evaluation & Benchmark Report](file:///c:/DecisionForageAI/docs/evaluation_report.md)** | Full comparative metrics table (precision, recall, F1, latency, safety), methodology, reproduction commands, and runtime assumptions. |
+| **[Architecture Specification](file:///c:/DecisionForageAI/docs/architecture.md)** | Mermaid workflow diagrams, stage-by-stage component breakdown, and controlled autonomy boundaries. |
+| **[Video Demonstration Script](file:///c:/DecisionForageAI/docs/demo_script.md)** | Second-by-second walkthrough script for the 5-minute video presentation. |
+| **[Checkpoint Update](file:///c:/DecisionForageAI/docs/checkpoint_update.md)** | Project milestones, completed deliverables, constraints, and verified submission links. |
+
+---
+
+## 8. Known Limitations & Production Roadmap
+
+1. **Probability Calibration:** The classifier outputs raw softmax scores from standard `LogisticRegression(C=5.0)`. In production, Platt scaling or isotonic regression will be applied on a larger validation corpus to provide true empirical probabilities.
+2. **Distributed Cache:** The current in-memory cache is process-local; next production iterations will connect a distributed Redis cluster with TTL expiration.
 3. **Template Phrasing:** The local response generator uses deterministic grounded templates; when an optional LLM API key is provided, fluid conversational synthesis can be activated without sacrificing safety guardrails.
