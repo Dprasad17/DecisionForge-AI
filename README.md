@@ -1,20 +1,22 @@
 # DecisionForge AI — Intelligent Multi-Model Business Request Decision Engine
 
 > **VEGAH Round 2 Assessment Implementation**  
-> *Controlled autonomy, multi-stage routing, hybrid evidence retrieval, deterministic policy guardrails, and observable decision traces.*
+> *Controlled autonomy, multi-stage routing, hybrid evidence retrieval, deterministic policy guardrails, and observable decision traces.*  
+> 🚀 **Live Interactive Application:** [https://decisionforge-ai.streamlit.app](https://decisionforge-ai.streamlit.app)  
+> 📦 **GitHub Repository:** [https://github.com/Dprasad17/DecisionForge-AI](https://github.com/Dprasad17/DecisionForge-AI)
 
 ---
 
 ## 1. Project Overview & Problem Statement
 
-Modern businesses receive high volumes of natural-language inquiries across customer support, billing, and technical operations. Simple chatbots often answer without verifying underlying policy constraints, halluncinating facts or attempting prohibited actions. Rules-only systems are safe but too brittle to understand natural paraphrasing, while expensive LLM-only pipelines are slow, costly, and lack auditability.
+Modern businesses receive high volumes of natural-language inquiries across customer support, billing, and technical operations. Simple chatbots often answer without verifying underlying policy constraints, hallucinating facts or attempting prohibited actions. Rules-only systems are safe but too brittle to understand natural paraphrasing, while expensive LLM-only pipelines are slow, costly, and lack auditability.
 
 **DecisionForge AI** solves this with a **multi-stage decision workflow with controlled autonomy**:
-1. **Lightweight Supervised Intent Classification (Approach A):** Fast, local scikit-learn TF-IDF + Logistic Regression producing class probability distributions via `predict_proba`.
-2. **Semantic / Hybrid Knowledge Retrieval (Approach B):** Dense vector embeddings (`all-MiniLM-L6-v2`) combined with keyword token coverage over a controlled local knowledge base (`data/knowledge_base.json`).
-3. **Deterministic Policy & Safety Engine:** Hard operational guardrails that cannot be bypassed by model confidence or adversarial prompt injections.
+1. **Lightweight Supervised Intent Classification (Approach A):** Linear probe on dense sentence representations (`all-MiniLM-L6-v2`) with TF-IDF fallback, outputting full class probability distributions.
+2. **Semantic / Hybrid Knowledge Retrieval (Approach B):** Dense vector embeddings (`all-MiniLM-L6-v2`) combined with keyword token coverage and relevance gating (threshold = 0.22) over a controlled knowledge base (`data/knowledge_base.json`).
+3. **Deterministic Policy & Safety Engine:** Hard operational guardrails (POL-001 to POL-007) that intercept adversarial prompt injections and unauthorized financial actions regardless of classifier confidence.
 4. **Controlled Autonomy:** Categorizes requests into `AUTO_RESPONSE`, `RECOMMENDATION_ONLY`, `HUMAN_REVIEW`, or `BLOCKED_BY_POLICY`. Prohibits real financial ledger mutations or live credential bypasses.
-5. **Measurable In-Memory Optimization:** Bypasses dense vector computation on repeated inquiries via a normalized in-memory cache, achieving an immediate **8.36x latency speedup**.
+5. **Measurable In-Memory Optimization:** Bypasses dense vector computation on repeated inquiries via a normalized in-memory cache, achieving an operational **5.48x mean latency speedup** (and sub-0.1ms median response).
 6. **Full-Stack Delivery:** Clean, interactive Streamlit frontend (`app/streamlit_app.py`) integrated with a robust FastAPI backend (`backend/main.py`).
 
 ---
