@@ -3,7 +3,8 @@
 > **VEGAH Round 2 Assessment Implementation**  
 > *Controlled autonomy, multi-stage routing, hybrid evidence retrieval, deterministic policy guardrails, and observable decision traces.*  
 > 🚀 **Live Interactive Application:** [https://decisionforge-ai-cthesr4rscshyv7oz7hgow.streamlit.app/](https://decisionforge-ai-cthesr4rscshyv7oz7hgow.streamlit.app/)  
-> 📦 **GitHub Repository:** [https://github.com/Dprasad17/DecisionForge-AI](https://github.com/Dprasad17/DecisionForge-AI)
+> 📦 **GitHub Repository:** [https://github.com/Dprasad17/DecisionForge-AI](https://github.com/Dprasad17/DecisionForge-AI)  
+> 🎥 **Video Demonstration (5 min):** [https://youtu.be/iYgaofoumzM](https://youtu.be/iYgaofoumzM)
 
 ---
 
